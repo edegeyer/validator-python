@@ -20,7 +20,7 @@ mydb = mysql.connector.connect(
 
 
 # select the data for the not manipulated data
-patientQuery = "SELECT * FROM patient"
+patientQuery = "SELECT * FROM swap3and4"
 # select the data for the anonymized data
 anonymQuery = "SELECT * FROM lastcharweg"
 
@@ -52,9 +52,6 @@ for i in range(patient.__len__()):
     rowTotal = 0
     # iterate over all the attributes of the entities
     for j in range(len(patient.columns)):
-        # TODO: hier klapppt das mit dem range nicht, werte sind nur 0 oder 1
-        print(j)
-        # print("i, j", i, " f ", j )
         # get the individual data of the cells to compare them
         singlePatient = patient.iloc[i][j]
         singleAnonym = anonym.iloc[i][j]
@@ -75,7 +72,7 @@ for i in range(patient.__len__()):
             else:
                 print("incorrect value for distance metric")
         elif isinstance(singleAnonym, bool):
-            # TODO: zur zeit wird kein bool erkannt, da nur werte zwischen 0 und 1 -> wird als int behandelt
+            # TODO: doesn't recognize any bools, as in the used tables they're only 0 or 1 and not true/false
             rowTotal += heinrichBool.compareBool(singleAnonym, singlePatient)
         elif isinstance(singleAnonym, int):
             rowTotal += heinrichInteger.compare(singleAnonym, singlePatient)
@@ -85,7 +82,7 @@ for i in range(patient.__len__()):
             rowTotal += heinrichDate.compare(singleAnonym, singlePatient, sigmaDay, sigmaMonth)
         #rowTotal += hamming.hammingDistance(patient[i][j], anonym[i][j])
     tableTotal += abs(rowTotal)/len(patient.columns)
-print("total: ", tableTotal)
+print("total: ", tableTotal/patient.__len__())
 
 '''
 

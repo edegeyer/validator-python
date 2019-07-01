@@ -20,7 +20,6 @@ letterToBeRemoved = 5 #counting starts at 0 ;)
 newMailColumn = []
 for row in range(emailColumn.__len__()):
     oldstring = emailColumn[row]
-    # TODO: für Wiederherstellung des sauberen Datensatzes: hostname nehmen und entfernen, danach einfach selber de anhägen
     # df.at[row, "email"] = oldstring[:letterToBeRemoved] + oldstring[letterToBeRemoved +2:]
     length = len(oldstring)
     savedString = oldstring[:length-2]

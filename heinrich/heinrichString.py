@@ -4,24 +4,26 @@ import re
 import collections
 
 
-def compareString(a, b, sigma):
+def compareString(a, b, sigmaLength, sigmaDistribution, sigmaOrder):
     regexA = re.compile("\\d+")
     regexB = re.compile("\\D+")
     if regexA.match(a) and regexB.match(b):
-        print("a and be are digit", a)
+        print("a and be are digits", a)
         return 0.0
     elif regexA.match(b) and regexB.match(a):
-        print("a and be are digit 2", a)
+        print("a and be are digits", a)
         return 0.0
     regexA = re.compile("^\\d+[a-zA-Z][a-zA-Z\\d]*$")
     if regexA.match(a) and regexA.match(b):
+        # is an individually defined structure
         print("insurance number ", a)
         if len(a) == 12 and len(b) == 12:
             x = a[8,10] # dífferent to java (8,9) as end character is exclusive
             y = b[8,10]
             regexA = re.compile("[a-zA-Z]")
             if regexA.match(a) and regexA.match(b):
-                return heinrich.heinrichInsurance.compare(a,b, sigma)
+                # only a dummy call, so far there are no insurance numbers in the dataset
+                return heinrich.heinrichInsurance.compare(a,b, sigma=1.0)
     regexA = re.compile("[A-z]+[0-9]$")
     if regexA.match(a) and regexA.match(b):
         print("string followed by number", a)
@@ -30,12 +32,14 @@ def compareString(a, b, sigma):
     if regexA.match(a) and regexA.match(b):
         print("something with numbers ", regexA)
         return 0.0
-    length = compareLength(a,b, sigma)
+    length = compareLength(a,b, sigmaLength)
     if a.lower() in b.lower() or b.lower() in a.lower():
+        # if a is in b or b in a
         content = 0.0
     else:
-        content = compareContent(a, b, sigma)
-    return 0.5 * (length + content)
+        content = compareContent(a, b, sigmaDistribution, sigmaOrder)
+    result = 0.5 * (length + content)
+    return result
 
 
 
@@ -44,28 +48,28 @@ def compareLength(a, b, sigma):
     return 1.0 - (math.exp(-0.5 * (math.pow(length/sigma, 2))))
 
 
-def compareContent(a, b, sigma):
-    order = compareOrder(a, b, sigma)
-    distribution = compareDistribution(a, b, sigma)
+def compareContent(a, b, sigmaDistribution, sigmaOrder):
+    order = compareOrder(a, b, sigmaDistribution)
+    distribution = compareDistribution(a, b, sigmaOrder)
     return 0.5 * (order + distribution)
 
 
-def compareOrder(a, b, sigma):
+def compareOrder(a, b, sigmaOrder):
     transpostions = getTranspositions(a, b)
     if transpostions.__len__() == 0:
         return 0.0
     sum = 0.0
     for i in transpostions:
-        sum = sum + (1.0 - math.exp(-0.5 * math.pow(i / sigma, 2.0)))
+        sum = sum + (1.0 - math.exp(-0.5 * math.pow(i / sigmaOrder, 2.0)))
     return sum * (1.0/transpostions.__len__())
 
 
-def compareDistribution(a, b, sigma):
+def compareDistribution(a, b, sigmaDistribution):
     distributions  = getDistribution(a,b)
     sum = 0
     for key in distributions:
         d = distributions.get(key)
-        sum += 1.0 - math.exp(-0.5 * (math.pow(d / sigma, 2)))
+        sum += 1.0 - math.exp(-0.5 * (math.pow(d / sigmaDistribution, 2)))
     size = len(distributions)
     if size == 0:
         return sum
@@ -74,7 +78,6 @@ def compareDistribution(a, b, sigma):
 
 
 def getTranspositions(firstString, secondString):
-    length = 0
     if len(firstString) > len(secondString):
         length = len(firstString)
         a = firstString
@@ -104,7 +107,6 @@ def getTranspositions(firstString, secondString):
         else:
             res.append(0)
 
-    # TODO: hier Optimierungspotential, da gleich Schleife und unnötiges inkrementieren
     count = 0
     result = []
     for i in res:
